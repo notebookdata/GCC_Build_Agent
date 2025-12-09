@@ -134,3 +134,89 @@ MODEL_NAME = "qwen2.5-coder:14b"
 
 # Context window size (increase for very large files)
 options={'num_ctx': 8192}
+
+
+
+
+
+
+
+
+
+
+This is a very common scenario in enterprise or university environments.
+
+Since Ollama is distributed as a single binary file, you do not need root (sudo) access to install it. You can run it entirely from your home directory.
+
+Here are the two best ways to handle this:
+
+Option 1: Run Ollama Locally (If the new machine has a GPU)
+If this new machine has a decent GPU, you can simply download the binary and run it manually.
+
+1. Download the Binary Run this in your terminal to download the Linux binary to your current folder:
+
+Bash
+
+curl -L https://ollama.com/download/ollama-linux-amd64 -o ollama
+2. Make it Executable
+
+Bash
+
+chmod +x ollama
+3. Start the Server You need to run the server in the background (or in a separate terminal window).
+
+Bash
+
+./ollama serve &
+(The & puts it in the background. If you want to see logs, remove the & and open a new terminal tab).
+
+4. Pull the Model Now you can use the ./ollama command just like the system version:
+
+Bash
+
+./ollama pull qwen2.5-coder:14b
+5. Update Python Script You don't need to change builder.py. The Python ollama library looks for localhost:11434 by default, which your local binary is now serving.
+
+Option 2: Remote Mode (Use your RTX 3060 Machine as the Brain)
+If the new machine is a weak laptop or a server with no GPU, you shouldn't run the model there. Instead, you can run the agent code on the new machine, but have it send the code to your RTX 3060 machine for processing.
+
+Step A: Configure the RTX 3060 Machine (The Server)
+
+Stop Ollama if it's running.
+
+Run Ollama with a special environment variable to allow outside connections (by default, it only listens to itself).
+
+Bash
+
+OLLAMA_HOST=0.0.0.0 ollama serve
+Find this machine's IP address (e.g., run ip a, let's assume it is 192.168.1.50).
+
+Step B: Configure the New Machine (The Client) You don't need to install Ollama binaries here at all! You only need the Python script.
+
+Set the Environment Variable: Tell the Python library where the "Brain" is.
+
+Bash
+
+export OLLAMA_HOST=192.168.1.50:11434
+Run the Agent:
+
+Bash
+
+python builder.py
+Step C: (Optional) Update builder.py Hardcoding If you don't want to export the variable every time, you can modify builder.py to point to the specific IP:
+
+Python
+
+# Inside builder.py
+import ollama
+
+# Create a client instance pointing to your GPU machine
+client = ollama.Client(host='http://192.168.1.50:11434')
+
+# Then update the chat call:
+response = client.chat( ... ) 
+# Instead of ollama.chat(...)
+Summary Recommendation
+If the new machine has a GPU: Use Option 1 (Download binary -> chmod +x -> Run).
+
+If the new machine has NO GPU: Use Option 2 (Point it to your RTX 3060 machine).
