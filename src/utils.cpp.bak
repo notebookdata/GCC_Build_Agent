@@ -1,0 +1,7 @@
+#include "../include/matrix.hpp"
+#include <iostream>
+
+void printMatrixInfo(const Matrix<int>& m) {
+    // Corrected: Accessing public member functions to get private members' values
+    std::cout << "Matrix Size: " << m.getRows() << "x" << m.getCols() << std::endl;
+}

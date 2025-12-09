@@ -1,0 +1,6 @@
+#include <iostream>
+
+int main() {
+    std::cout << "Building with CMake!" << std::endl // Missing Semicolon
+    return "Zero"; // Wrong return type
+}
